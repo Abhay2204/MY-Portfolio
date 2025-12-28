@@ -58,8 +58,8 @@ const RobotChat: React.FC = () => {
   useEffect(() => {
     if (isOpen && chatBoxRef.current) {
       gsap.fromTo(chatBoxRef.current,
-        { scale: 0, opacity: 0, y: 20 },
-        { scale: 1, opacity: 1, y: 0, duration: 0.4, ease: "back.out(1.7)" }
+        { scale: 0.8, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(1.7)" }
       );
     }
   }, [isOpen]);
@@ -105,7 +105,7 @@ const RobotChat: React.FC = () => {
   };
 
   return (
-    <div className="fixed right-8 top-1/2 -translate-y-1/2 z-50">
+    <div className="fixed right-8 bottom-12 z-50">
       {/* Robot */}
       <div 
         onClick={handleRobotClick}
@@ -133,11 +133,11 @@ const RobotChat: React.FC = () => {
         </div>
       )}
 
-      {/* Chat Box - Opens to the LEFT of robot, closer */}
+      {/* Chat Box - Opens to the LEFT of robot, at bottom */}
       {isOpen && (
         <div
           ref={chatBoxRef}
-          className="absolute right-28 top-1/2 -translate-y-1/2 w-80 bg-bg-dark border border-white/20 rounded-2xl shadow-2xl overflow-hidden"
+          className="absolute right-28 bottom-0 w-80 bg-bg-dark border border-white/20 rounded-2xl shadow-2xl overflow-hidden"
           style={{
             maxHeight: '70vh',
           }}

@@ -154,15 +154,15 @@ const Clients: React.FC = () => {
             {techStack.map((tech, i) => (
                 <div 
                     key={i} 
-                    className="aspect-[4/3] border-r border-b border-white/10 flex items-center justify-center relative hover:bg-white/[0.02] transition-colors duration-500 group overflow-hidden"
+                    className="aspect-[4/3] border-r border-b border-white/10 flex items-center justify-center relative hover:bg-white/[0.02] transition-colors duration-500 group overflow-hidden cursor-pointer"
                 >
                      {/* Text Name - Fades out and moves down on hover */}
-                     <span className="text-lg md:text-xl font-sans text-subtle group-hover:opacity-0 group-hover:translate-y-4 transition-all duration-300 ease-out z-10">
+                     <span className="text-lg md:text-xl font-sans text-subtle group-hover:opacity-0 group-hover:translate-y-4 transition-all duration-300 ease-out z-10 pointer-events-none">
                         {tech.name}
                      </span>
                      
                      {/* Icon - Fades in and scales up from small to normal */}
-                     <div className="absolute inset-0 flex items-center justify-center opacity-0 scale-50 group-hover:opacity-100 group-hover:scale-100 transition-all duration-500 ease-out">
+                     <div className="absolute inset-0 flex items-center justify-center opacity-0 scale-50 group-hover:opacity-100 group-hover:scale-100 transition-all duration-500 ease-out pointer-events-none">
                         {tech.icon}
                      </div>
                 </div>
