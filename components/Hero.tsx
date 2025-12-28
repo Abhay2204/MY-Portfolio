@@ -20,6 +20,9 @@ const Hero: React.FC = () => {
       // Check if we need to show gyro permission button (iOS 13+)
       if (mobile && typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
         setShowGyroButton(true);
+      } else if (mobile) {
+        // Android - enable gyro automatically
+        setGyroEnabled(true);
       }
     };
     checkMobile();
@@ -60,7 +63,7 @@ const Hero: React.FC = () => {
             "-=1"
         );
 
-        // 4. Mouse Move Parallax (Desktop) / Gyroscope (Mobile)
+        // 4. Mouse Move Parallax (Desktop only)
         if (window.innerWidth >= 768) {
             // Desktop: Mouse parallax
             const handleMouseMove = (e: MouseEvent) => {
@@ -108,12 +111,16 @@ const Hero: React.FC = () => {
   useEffect(() => {
     if (!isMobile || !gyroEnabled) return;
 
+    console.log('Gyroscope enabled - setting up listener');
+
     const handleOrientation = (e: DeviceOrientationEvent) => {
         if (!containerRef.current) return;
         
         // Get device orientation values
         const gamma = e.gamma || 0; // Left to right tilt (-90 to 90)
         const beta = e.beta || 0;   // Front to back tilt (-180 to 180)
+        
+        console.log('Gyro values:', { gamma, beta });
         
         // Normalize values to -1 to 1 range
         const x = Math.max(-1, Math.min(1, gamma / 45));
@@ -138,17 +145,22 @@ const Hero: React.FC = () => {
         });
     };
 
-    window.addEventListener('deviceorientation', handleOrientation);
+    window.addEventListener('deviceorientation', handleOrientation, true);
+    console.log('Gyroscope listener added');
     
     return () => {
-        window.removeEventListener('deviceorientation', handleOrientation);
+        window.removeEventListener('deviceorientation', handleOrientation, true);
+        console.log('Gyroscope listener removed');
     };
   }, [isMobile, gyroEnabled]);
 
   const requestGyroPermission = async () => {
+    console.log('Requesting gyroscope permission...');
+    
     if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
       try {
         const permissionState = await (DeviceOrientationEvent as any).requestPermission();
+        console.log('Permission state:', permissionState);
         if (permissionState === 'granted') {
           setGyroEnabled(true);
           setShowGyroButton(false);
@@ -158,6 +170,7 @@ const Hero: React.FC = () => {
       }
     } else {
       // Non-iOS devices - enable directly
+      console.log('Non-iOS device - enabling gyroscope directly');
       setGyroEnabled(true);
       setShowGyroButton(false);
     }
@@ -257,11 +270,11 @@ const Hero: React.FC = () => {
                 ENGINEERING ROBUST DIGITAL EXPERIENCES THROUGH CODE & DESIGN.
             </div>
             
-            {/* Gyroscope Enable Button - Mobile Only */}
+            {/* Gyroscope Enable Button - Mobile Only (iOS) */}
             {showGyroButton && (
                 <button
                     onClick={requestGyroPermission}
-                    className="md:hidden group relative px-4 py-2 border border-accent/50 rounded-full overflow-hidden hover:border-accent transition-colors duration-300 bg-bg-dark/80 backdrop-blur-sm"
+                    className="md:hidden group relative px-4 py-2 border border-accent/50 rounded-full overflow-hidden hover:border-accent transition-colors duration-300 bg-bg-dark/80 backdrop-blur-sm animate-pulse"
                 >
                     <div className="absolute inset-0 bg-accent translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
                     <span className="relative text-[9px] font-bold tracking-widest uppercase text-accent group-hover:text-white transition-colors z-10 flex items-center gap-2">
@@ -271,6 +284,14 @@ const Hero: React.FC = () => {
                         </svg>
                     </span>
                 </button>
+            )}
+            
+            {/* Gyroscope Active Indicator - Mobile Only */}
+            {isMobile && gyroEnabled && !showGyroButton && (
+                <div className="md:hidden flex items-center gap-2 px-3 py-1.5 border border-accent/30 rounded-full bg-bg-dark/80 backdrop-blur-sm">
+                    <div className="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
+                    <span className="text-[9px] font-mono text-accent uppercase tracking-widest">Tilt Active</span>
+                </div>
             )}
             
             <div className="hero-spec flex flex-col items-center gap-2 mx-auto md:mx-0">

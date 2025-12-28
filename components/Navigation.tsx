@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { NavItem } from '../types';
 import { FaLinkedinIn, FaGithub, FaTwitter, FaVolumeUp, FaVolumeMute } from 'react-icons/fa';
+import gsap from '../utils/gsap';
 
 const navItems: NavItem[] = [
   { label: 'ABOUT', href: '#about' },
@@ -10,7 +11,10 @@ const navItems: NavItem[] = [
 
 const Navigation: React.FC = () => {
   const [soundOn, setSoundOn] = useState(true); // Start as true since it will auto-play
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const menuItemsRef = useRef<HTMLLIElement[]>([]);
 
   useEffect(() => {
     // Create audio element
@@ -40,6 +44,40 @@ const Navigation: React.FC = () => {
     };
   }, []);
 
+  // Mobile menu animation
+  useEffect(() => {
+    if (!mobileMenuRef.current) return;
+
+    if (mobileMenuOpen) {
+      // Open animation
+      gsap.to(mobileMenuRef.current, {
+        x: 0,
+        duration: 0.5,
+        ease: "power3.out"
+      });
+
+      // Stagger menu items
+      gsap.fromTo(menuItemsRef.current,
+        { x: 50, opacity: 0 },
+        { 
+          x: 0, 
+          opacity: 1, 
+          duration: 0.4, 
+          stagger: 0.1, 
+          ease: "power2.out",
+          delay: 0.2
+        }
+      );
+    } else {
+      // Close animation
+      gsap.to(mobileMenuRef.current, {
+        x: '100%',
+        duration: 0.4,
+        ease: "power3.in"
+      });
+    }
+  }, [mobileMenuOpen]);
+
   const toggleSound = () => {
     if (audioRef.current) {
       if (soundOn) {
@@ -51,6 +89,17 @@ const Navigation: React.FC = () => {
       }
       setSoundOn(!soundOn);
     }
+  };
+
+  const handleMobileNavClick = (href: string) => {
+    setMobileMenuOpen(false);
+    // Smooth scroll to section
+    setTimeout(() => {
+      const element = document.querySelector(href);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 400);
   };
 
   return (
@@ -111,13 +160,115 @@ const Navigation: React.FC = () => {
 
       {/* Mobile Menu Button - Bottom Right */}
       <button 
-        className="fixed bottom-6 right-4 z-50 md:hidden w-12 h-12 rounded-full border border-white/20 flex items-center justify-center bg-bg-dark/80 backdrop-blur-sm"
-        onClick={() => {/* Add mobile menu toggle logic if needed */}}
+        className="fixed bottom-6 right-4 z-50 md:hidden w-12 h-12 rounded-full border border-white/20 flex flex-col items-center justify-center bg-bg-dark/80 backdrop-blur-sm gap-1 transition-all duration-300 hover:border-accent"
+        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
       >
-        <div className="flex flex-col gap-1">
-          <span className="w-4 h-[1px] bg-white"></span>
-          <span className="w-4 h-[1px] bg-white"></span>
+        <span className={`w-4 h-[1.5px] bg-white transition-all duration-300 ${mobileMenuOpen ? 'rotate-45 translate-y-[3px]' : ''}`}></span>
+        <span className={`w-4 h-[1.5px] bg-white transition-all duration-300 ${mobileMenuOpen ? '-rotate-45 -translate-y-[3px]' : ''}`}></span>
+      </button>
+
+      {/* Mobile Menu Overlay */}
+      <div 
+        ref={mobileMenuRef}
+        className="fixed top-0 right-0 w-full h-screen bg-bg-dark z-40 md:hidden translate-x-full"
+        style={{ willChange: 'transform' }}
+      >
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vw] bg-accent/20 rounded-full blur-[150px]"></div>
         </div>
+
+        {/* Menu Content */}
+        <div className="relative h-full flex flex-col justify-between p-8 pt-20">
+          
+          {/* Navigation Links */}
+          <nav className="flex-1 flex flex-col justify-center gap-8">
+            {navItems.map((item, index) => (
+              <li 
+                key={item.label}
+                ref={el => { if (el) menuItemsRef.current[index] = el; }}
+                className="list-none group"
+              >
+                <div className="flex items-baseline gap-4">
+                  <span className="text-xs font-mono text-accent opacity-60">
+                    0{index + 1}
+                  </span>
+                  <a 
+                    href={item.href}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleMobileNavClick(item.href);
+                    }}
+                    className="text-5xl font-serif italic text-off-white hover:text-accent transition-colors duration-300"
+                  >
+                    {item.label}
+                  </a>
+                </div>
+                <div className="w-full h-[1px] bg-white/10 mt-4 group-hover:bg-accent/30 transition-colors duration-300"></div>
+              </li>
+            ))}
+          </nav>
+
+          {/* Bottom Section - Social Links & Sound Toggle */}
+          <div className="space-y-6">
+            {/* Social Links */}
+            <div className="flex gap-6 justify-center">
+              <a 
+                href="https://linkedin.com/in/abhaymallick2002/" 
+                target="_blank" 
+                rel="noreferrer" 
+                className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:border-accent hover:text-accent transition-all duration-300"
+              >
+                <FaLinkedinIn size={18} />
+              </a>
+              <a 
+                href="https://github.com/Abhay2204" 
+                target="_blank" 
+                rel="noreferrer" 
+                className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:border-accent hover:text-accent transition-all duration-300"
+              >
+                <FaGithub size={18} />
+              </a>
+              <a 
+                href="#" 
+                className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:border-accent hover:text-accent transition-all duration-300"
+              >
+                <FaTwitter size={18} />
+              </a>
+            </div>
+
+            {/* Sound Toggle */}
+            <div className="flex items-center justify-center gap-4">
+              <span className="text-xs font-mono text-subtle uppercase tracking-widest">
+                {soundOn ? 'Sound On' : 'Muted'}
+              </span>
+              <button 
+                onClick={toggleSound}
+                className="w-12 h-12 border border-white/20 rounded-full flex items-center justify-center hover:border-accent hover:text-accent transition-all duration-300"
+              >
+                {soundOn ? <FaVolumeUp size={16} /> : <FaVolumeMute size={16} />}
+              </button>
+            </div>
+
+            {/* Email */}
+            <div className="text-center">
+              <a 
+                href="mailto:abhaymallick.dev@gmail.com" 
+                className="text-xs font-mono text-subtle hover:text-accent transition-colors"
+              >
+                abhaymallick.dev@gmail.com
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Sound Toggle Button - Fixed Bottom Left */}
+      <button 
+        onClick={toggleSound}
+        className="fixed bottom-6 left-4 z-50 md:hidden w-12 h-12 border border-white/20 rounded-full flex items-center justify-center hover:border-accent hover:text-accent transition-all duration-300 bg-bg-dark/80 backdrop-blur-sm"
+      >
+        {soundOn ? <FaVolumeUp size={16} /> : <FaVolumeMute size={16} />}
       </button>
     </>
   );
