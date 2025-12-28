@@ -105,7 +105,7 @@ const RobotChat: React.FC = () => {
   };
 
   return (
-    <div className="fixed right-8 bottom-12 z-50">
+    <div className="fixed right-8 top-1/2 -translate-y-1/2 z-50">
       {/* Robot */}
       <div 
         onClick={handleRobotClick}
@@ -133,11 +133,11 @@ const RobotChat: React.FC = () => {
         </div>
       )}
 
-      {/* Chat Box - Opens to the LEFT of robot, at bottom */}
+      {/* Chat Box - Opens to the LEFT of robot, centered vertically */}
       {isOpen && (
         <div
           ref={chatBoxRef}
-          className="absolute right-28 bottom-0 w-80 bg-bg-dark border border-white/20 rounded-2xl shadow-2xl overflow-hidden"
+          className="absolute right-28 top-1/2 -translate-y-1/2 w-80 bg-bg-dark border border-white/20 rounded-2xl shadow-2xl overflow-hidden"
           style={{
             maxHeight: '70vh',
           }}

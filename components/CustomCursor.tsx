@@ -25,35 +25,36 @@ const CustomCursor: React.FC = () => {
       yTo(e.clientY);
       
       gsap.to(follower, {
-        duration: 0.6, // Snappier
+        duration: 0.6,
         x: e.clientX,
         y: e.clientY,
         ease: "power2.out"
       });
     };
 
-    const onHoverStart = () => setIsHovering(true);
-    const onHoverEnd = () => setIsHovering(false);
-
-    window.addEventListener('mousemove', onMouseMove);
-    
-    // Add event listeners to interactive elements
-    const addListeners = () => {
-        const hoverables = document.querySelectorAll('a, button, .hover-trigger, input');
-        hoverables.forEach(el => {
-          el.addEventListener('mouseenter', onHoverStart);
-          el.addEventListener('mouseleave', onHoverEnd);
-        });
+    // Optimized: Use event delegation instead of MutationObserver
+    const onMouseOver = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.closest('a, button, .hover-trigger, input')) {
+        setIsHovering(true);
+      }
     };
 
-    addListeners();
-    // Re-add listeners if DOM changes (simple observer for this demo)
-    const observer = new MutationObserver(addListeners);
-    observer.observe(document.body, { childList: true, subtree: true });
+    const onMouseOut = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.closest('a, button, .hover-trigger, input')) {
+        setIsHovering(false);
+      }
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseover', onMouseOver);
+    document.addEventListener('mouseout', onMouseOut);
 
     return () => {
       window.removeEventListener('mousemove', onMouseMove);
-      observer.disconnect();
+      document.removeEventListener('mouseover', onMouseOver);
+      document.removeEventListener('mouseout', onMouseOut);
     };
   }, []);
 
