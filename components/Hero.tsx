@@ -193,6 +193,13 @@ const Hero: React.FC = () => {
                 <span className="hidden sm:inline">Based in India</span>
             </div>
             
+            {/* EST. 2002 Badge - Mobile Only (Top Right) */}
+            <div className="md:hidden hero-spec bg-bg-dark px-3 py-1 border border-white/10 rounded-full">
+                <span className="text-[9px] font-mono text-white tracking-widest whitespace-nowrap">
+                    EST. 2002
+                </span>
+            </div>
+            
             {/* Right Side: Specs + Resume Button */}
             <div className="hero-spec flex flex-col items-end gap-6 text-right hidden md:flex">
                 <div>
@@ -233,8 +240,8 @@ const Hero: React.FC = () => {
             <div className="w-[85vw] sm:w-[75vw] md:w-[60vw] h-[1px] md:h-[2px] bg-accent relative my-4 md:my-6 lg:my-12">
                 <div ref={lineRef} className="absolute inset-0 bg-accent w-full h-full origin-center"></div>
                 
-                {/* Floating Badge on Line */}
-                <div className="absolute left-1/2 md:top-1/2 -top-3 md:-translate-y-1/2 -translate-x-1/2 bg-bg-dark px-3 md:px-4 py-1 hero-spec border border-white/10 rounded-full">
+                {/* Floating Badge on Line - Desktop Only */}
+                <div className="hidden md:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-bg-dark px-3 md:px-4 py-1 hero-spec border border-white/10 rounded-full">
                     <span className="text-[9px] md:text-[10px] lg:text-xs font-mono text-white tracking-widest whitespace-nowrap">
                         EST. 2002
                     </span>
