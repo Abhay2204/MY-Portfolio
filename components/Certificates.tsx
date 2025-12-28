@@ -163,8 +163,8 @@ const Certificates: React.FC = () => {
                 <div className="relative flex-1 flex flex-col p-8 md:p-10 z-10">
                   
                   {/* Header */}
-                  <div className="flex items-start justify-between mb-8 pb-6 border-b border-white/5 group-hover:border-white/10 transition-colors duration-500">
-                    <div className="flex flex-col gap-2">
+                  <div className="flex items-start justify-between mb-3 pb-3 border-b border-white/5 group-hover:border-white/10 transition-colors duration-500">
+                    <div className="flex flex-col gap-1">
                       <span className="text-[9px] font-mono tracking-[0.3em] text-subtle uppercase group-hover:text-accent transition-colors duration-300">
                         {cert.type}
                       </span>
