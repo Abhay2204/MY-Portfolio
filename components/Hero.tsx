@@ -234,7 +234,7 @@ const Hero: React.FC = () => {
                 <div ref={lineRef} className="absolute inset-0 bg-accent w-full h-full origin-center"></div>
                 
                 {/* Floating Badge on Line */}
-                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-bg-dark px-3 md:px-4 py-1 hero-spec border border-white/10 rounded-full">
+                <div className="absolute left-1/2 md:top-1/2 -top-3 md:-translate-y-1/2 -translate-x-1/2 bg-bg-dark px-3 md:px-4 py-1 hero-spec border border-white/10 rounded-full">
                     <span className="text-[9px] md:text-[10px] lg:text-xs font-mono text-white tracking-widest whitespace-nowrap">
                         EST. 2002
                     </span>

@@ -263,13 +263,6 @@ const Navigation: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Sound Toggle Button - Fixed Bottom Left */}
-      <button 
-        onClick={toggleSound}
-        className="fixed bottom-6 left-4 z-50 md:hidden w-12 h-12 border border-white/20 rounded-full flex items-center justify-center hover:border-accent hover:text-accent transition-all duration-300 bg-bg-dark/80 backdrop-blur-sm"
-      >
-        {soundOn ? <FaVolumeUp size={16} /> : <FaVolumeMute size={16} />}
-      </button>
     </>
   );
 };
