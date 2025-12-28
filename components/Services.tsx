@@ -21,8 +21,21 @@ const Services: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const imageRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    // Disable hover image on mobile
+    if (isMobile) return;
+
     const onMove = (e: MouseEvent) => {
         if (!imageRef.current || !containerRef.current) return;
         
@@ -48,11 +61,11 @@ const Services: React.FC = () => {
 
     window.addEventListener('mousemove', onMove);
     return () => window.removeEventListener('mousemove', onMove);
-  }, []);
+  }, [isMobile]);
 
   useEffect(() => {
-    // Show/Hide image based on activeIndex
-    if (imageRef.current) {
+    // Show/Hide image based on activeIndex (desktop only)
+    if (imageRef.current && !isMobile) {
         gsap.to(imageRef.current, {
             scale: activeIndex !== null ? 1 : 0,
             opacity: activeIndex !== null ? 1 : 0,
@@ -60,7 +73,7 @@ const Services: React.FC = () => {
             ease: "power2.out"
         });
     }
-  }, [activeIndex]);
+  }, [activeIndex, isMobile]);
 
   return (
     <section id="work" ref={containerRef} className="py-32 w-full bg-bg-dark relative z-20 overflow-hidden min-h-screen">
@@ -79,9 +92,9 @@ const Services: React.FC = () => {
             {services.map((service, index) => (
                 <div 
                     key={service.id} 
-                    onMouseEnter={() => setActiveIndex(index)}
-                    onMouseLeave={() => setActiveIndex(null)}
-                    className="group relative border-b border-white/10 py-12 md:py-16 px-6 md:px-20 flex justify-between items-center cursor-none hover:bg-white/5 transition-colors duration-500"
+                    onMouseEnter={() => !isMobile && setActiveIndex(index)}
+                    onMouseLeave={() => !isMobile && setActiveIndex(null)}
+                    className="group relative border-b border-white/10 py-12 md:py-16 px-6 md:px-20 flex justify-between items-center md:cursor-none hover:bg-white/5 transition-colors duration-500"
                 >
                     <h2 className="text-4xl md:text-7xl font-serif text-off-white group-hover:text-accent transition-colors duration-300 italic">
                         {service.title}
@@ -93,20 +106,22 @@ const Services: React.FC = () => {
             ))}
         </div>
 
-        {/* Floating Image Reveal */}
-        <div 
-            ref={imageRef}
-            className="fixed top-0 left-0 w-[300px] h-[400px] pointer-events-none z-[60] overflow-hidden mix-blend-normal rounded-lg -translate-x-1/2 -translate-y-1/2 will-change-transform"
-            style={{ opacity: 0, transform: 'scale(0) translate(-50%, -50%)' }}
-        >
-            <div 
-                className="w-full h-full bg-cover bg-center transition-all duration-500"
-                style={{ 
-                    backgroundImage: activeIndex !== null ? `url(${images[activeIndex]})` : 'none',
-                    filter: 'grayscale(100%) contrast(120%)'
-                }}
-            />
-        </div>
+        {/* Floating Image Reveal - Desktop Only */}
+        {!isMobile && (
+          <div 
+              ref={imageRef}
+              className="fixed top-0 left-0 w-[300px] h-[400px] pointer-events-none z-[60] overflow-hidden mix-blend-normal rounded-lg -translate-x-1/2 -translate-y-1/2 will-change-transform"
+              style={{ opacity: 0, transform: 'scale(0) translate(-50%, -50%)' }}
+          >
+              <div 
+                  className="w-full h-full bg-cover bg-center transition-all duration-500"
+                  style={{ 
+                      backgroundImage: activeIndex !== null ? `url(${images[activeIndex]})` : 'none',
+                      filter: 'grayscale(100%) contrast(120%)'
+                  }}
+              />
+          </div>
+        )}
     </section>
   );
 };

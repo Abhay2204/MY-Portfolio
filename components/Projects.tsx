@@ -99,10 +99,21 @@ const Projects: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const [hoveredProject, setHoveredProject] = useState<Project | null>(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const mousePos = useRef({ x: 0, y: 0 });
   const cardPos = useRef({ x: 0, y: 0 });
   const rafId = useRef<number>();
   const [isInSection, setIsInSection] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -132,8 +143,10 @@ const Projects: React.FC = () => {
     return () => ctx.revert();
   }, []);
 
-  // Track if mouse is in the projects section
+  // Track if mouse is in the projects section (desktop only)
   useEffect(() => {
+    if (isMobile) return;
+
     const handleMouseMove = (e: MouseEvent) => {
       if (!containerRef.current) return;
       
@@ -163,20 +176,24 @@ const Projects: React.FC = () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('scroll', handleScroll);
     };
-  }, []);
+  }, [isMobile]);
 
-  // Mouse tracking
+  // Mouse tracking (desktop only)
   useEffect(() => {
+    if (isMobile) return;
+
     const handleMouseMove = (e: MouseEvent) => {
       mousePos.current = { x: e.clientX, y: e.clientY };
     };
 
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+  }, [isMobile]);
 
-  // Lerp animation for smooth following
+  // Lerp animation for smooth following (desktop only)
   useEffect(() => {
+    if (isMobile) return;
+
     const lerp = (start: number, end: number, factor: number) => {
       return start + (end - start) * factor;
     };
@@ -199,34 +216,34 @@ const Projects: React.FC = () => {
         cancelAnimationFrame(rafId.current);
       }
     };
-  }, []);
+  }, [isMobile]);
 
-  // Morph animation when hovering
+  // Morph animation when hovering (desktop only)
   useEffect(() => {
-    if (cardRef.current) {
-      if (hoveredProject) {
-        // Expand to card
-        gsap.to(cardRef.current, {
-          width: 400,
-          height: 500,
-          borderRadius: 12,
-          opacity: 1,
-          duration: 0.6,
-          ease: "power3.out"
-        });
-      } else {
-        // Shrink to dot
-        gsap.to(cardRef.current, {
-          width: 20,
-          height: 20,
-          borderRadius: '50%',
-          opacity: 0,
-          duration: 0.4,
-          ease: "power2.in"
-        });
-      }
+    if (isMobile || !cardRef.current) return;
+
+    if (hoveredProject) {
+      // Expand to card
+      gsap.to(cardRef.current, {
+        width: 400,
+        height: 500,
+        borderRadius: 12,
+        opacity: 1,
+        duration: 0.6,
+        ease: "power3.out"
+      });
+    } else {
+      // Shrink to dot
+      gsap.to(cardRef.current, {
+        width: 20,
+        height: 20,
+        borderRadius: '50%',
+        opacity: 0,
+        duration: 0.4,
+        ease: "power2.in"
+      });
     }
-  }, [hoveredProject]);
+  }, [hoveredProject, isMobile]);
 
   return (
     <section id="work" ref={containerRef} className="py-32 px-6 md:px-20 bg-bg-dark border-t border-white/5 relative overflow-hidden min-h-screen">
@@ -258,8 +275,9 @@ const Projects: React.FC = () => {
                     <div 
                         key={index} 
                         className="project-row group relative border-t border-white/10 py-12 transition-all duration-500 hover:bg-white/[0.02]"
-                        onMouseEnter={() => isInSection && setHoveredProject(project)}
-                        onMouseLeave={() => setHoveredProject(null)}
+                        onMouseEnter={() => !isMobile && isInSection && setHoveredProject(project)}
+                        onMouseLeave={() => !isMobile && setHoveredProject(null)}
+                        onClick={() => isMobile && setSelectedProject(project)}
                     >
                         <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 md:gap-0 relative z-10">
                             
@@ -308,25 +326,110 @@ const Projects: React.FC = () => {
             </div>
         </div>
 
-        {/* Floating Project Card - Morphs from dot to card */}
-        <div 
-          ref={cardRef}
-          className="fixed top-0 left-0 pointer-events-none z-[60] overflow-hidden bg-surface border border-accent/30"
-          style={{
-            width: 20,
-            height: 20,
-            borderRadius: '50%',
-            opacity: 0,
-            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
-          }}
-        >
-          {hoveredProject && (
-            <div className="w-full h-full flex flex-col">
+        {/* Floating Project Card - Desktop Only - Morphs from dot to card */}
+        {!isMobile && (
+          <div 
+            ref={cardRef}
+            className="fixed top-0 left-0 pointer-events-none z-[60] overflow-hidden bg-surface border border-accent/30"
+            style={{
+              width: 20,
+              height: 20,
+              borderRadius: '50%',
+              opacity: 0,
+              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
+            }}
+          >
+            {hoveredProject && (
+              <div className="w-full h-full flex flex-col">
+                {/* Project Image */}
+                <div className="relative w-full h-48 overflow-hidden">
+                  <img 
+                    src={hoveredProject.image} 
+                    alt={hoveredProject.title}
+                    className="w-full h-full object-cover"
+                    style={{ filter: 'grayscale(100%) contrast(120%)' }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent"></div>
+                </div>
+
+                {/* Project Details */}
+                <div className="p-6 flex-1 flex flex-col">
+                  {/* Header */}
+                  <div className="mb-4">
+                    <div className="flex items-baseline gap-2 mb-1">
+                      <span className="text-[10px] font-mono text-accent">{hoveredProject.id}</span>
+                      <h3 className="text-2xl font-serif text-off-white italic">
+                        {hoveredProject.title}
+                      </h3>
+                    </div>
+                    <p className="text-[10px] font-mono text-subtle uppercase tracking-widest">
+                      {hoveredProject.category}
+                    </p>
+                  </div>
+
+                  {/* Tech Stack */}
+                  <div className="mb-4">
+                    <h4 className="text-[9px] font-mono tracking-widest text-subtle uppercase mb-2">Tech Stack</h4>
+                    <div className="flex flex-wrap gap-1">
+                      {hoveredProject.tech.split(',').map((t, i) => (
+                        <span 
+                          key={i} 
+                          className="text-[9px] font-mono border border-accent/30 px-2 py-1 rounded-full text-accent"
+                        >
+                          {t.trim()}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Features */}
+                  <div className="flex-1">
+                    <h4 className="text-[9px] font-mono tracking-widest text-subtle uppercase mb-2">Features</h4>
+                    <ul className="space-y-1">
+                      {hoveredProject.description.slice(0, 3).map((desc, i) => (
+                        <li key={i} className="flex items-start gap-2 text-gray-400">
+                          <span className="text-accent text-[10px] mt-0.5">●</span>
+                          <span className="text-[11px] leading-relaxed">{desc}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Year */}
+                  <div className="mt-4 pt-4 border-t border-white/10">
+                    <span className="text-[10px] font-mono text-subtle">{hoveredProject.year}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Mobile Project Modal */}
+        {isMobile && selectedProject && (
+          <div 
+            className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            onClick={() => setSelectedProject(null)}
+          >
+            <div 
+              className="relative w-full max-w-md bg-surface border border-accent/30 rounded-lg overflow-hidden shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setSelectedProject(null)}
+                className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-bg-dark/80 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:border-accent transition-colors"
+              >
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+
               {/* Project Image */}
               <div className="relative w-full h-48 overflow-hidden">
                 <img 
-                  src={hoveredProject.image} 
-                  alt={hoveredProject.title}
+                  src={selectedProject.image} 
+                  alt={selectedProject.title}
                   className="w-full h-full object-cover"
                   style={{ filter: 'grayscale(100%) contrast(120%)' }}
                 />
@@ -334,17 +437,17 @@ const Projects: React.FC = () => {
               </div>
 
               {/* Project Details */}
-              <div className="p-6 flex-1 flex flex-col">
+              <div className="p-6 flex flex-col">
                 {/* Header */}
                 <div className="mb-4">
                   <div className="flex items-baseline gap-2 mb-1">
-                    <span className="text-[10px] font-mono text-accent">{hoveredProject.id}</span>
+                    <span className="text-[10px] font-mono text-accent">{selectedProject.id}</span>
                     <h3 className="text-2xl font-serif text-off-white italic">
-                      {hoveredProject.title}
+                      {selectedProject.title}
                     </h3>
                   </div>
                   <p className="text-[10px] font-mono text-subtle uppercase tracking-widest">
-                    {hoveredProject.category}
+                    {selectedProject.category}
                   </p>
                 </div>
 
@@ -352,7 +455,7 @@ const Projects: React.FC = () => {
                 <div className="mb-4">
                   <h4 className="text-[9px] font-mono tracking-widest text-subtle uppercase mb-2">Tech Stack</h4>
                   <div className="flex flex-wrap gap-1">
-                    {hoveredProject.tech.split(',').map((t, i) => (
+                    {selectedProject.tech.split(',').map((t, i) => (
                       <span 
                         key={i} 
                         className="text-[9px] font-mono border border-accent/30 px-2 py-1 rounded-full text-accent"
@@ -364,10 +467,10 @@ const Projects: React.FC = () => {
                 </div>
 
                 {/* Features */}
-                <div className="flex-1">
+                <div className="mb-4">
                   <h4 className="text-[9px] font-mono tracking-widest text-subtle uppercase mb-2">Features</h4>
-                  <ul className="space-y-1">
-                    {hoveredProject.description.slice(0, 3).map((desc, i) => (
+                  <ul className="space-y-2">
+                    {selectedProject.description.map((desc, i) => (
                       <li key={i} className="flex items-start gap-2 text-gray-400">
                         <span className="text-accent text-[10px] mt-0.5">●</span>
                         <span className="text-[11px] leading-relaxed">{desc}</span>
@@ -377,13 +480,13 @@ const Projects: React.FC = () => {
                 </div>
 
                 {/* Year */}
-                <div className="mt-4 pt-4 border-t border-white/10">
-                  <span className="text-[10px] font-mono text-subtle">{hoveredProject.year}</span>
+                <div className="pt-4 border-t border-white/10">
+                  <span className="text-[10px] font-mono text-subtle">{selectedProject.year}</span>
                 </div>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
     </section>
   );
 };
