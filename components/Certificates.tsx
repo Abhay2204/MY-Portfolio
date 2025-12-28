@@ -23,8 +23,8 @@ const certificates: Certificate[] = [
     organization: "Inspire Engineering Services",
     duration: "July 2024 - Jan 2025",
     issued: "2025",
-    description: "Comprehensive industrial internship training program covering full-stack software development with modern technologies.",
-    skills: ["Full Stack Development", "Software Engineering", "Industrial Training"],
+    description: "Comprehensive industrial internship training program covering full-stack software development.",
+    skills: ["Full Stack Development",  "Industrial Training"],
     downloadUrl: "/documents/Inspire Engineering.pdf"
   },
   {
@@ -68,7 +68,7 @@ const certificates: Certificate[] = [
     duration: "July 2023 - Aug 2023",
     issued: "2023",
     description: "Industrial internship training program focusing on Java programming fundamentals and applications.",
-    skills: ["Java Programming", "Industrial Training", "Software Development"],
+    skills: ["Java Programming", "Industrial Training"],
     downloadUrl: "/documents/soft tech java.pdf"
   },
   {
@@ -79,7 +79,7 @@ const certificates: Certificate[] = [
     duration: "Mar 2022 - Apr 2022",
     issued: "2022",
     description: "4-week industrial training program in web application development using PHP and MySQL.",
-    skills: ["PHP", "MySQL", "Web Applications", "Database Management"],
+    skills: [ "MySQL", "Web Applications", "Database Management"],
     downloadUrl: "/documents/code infosystem web.pdf"
   }
 ];
