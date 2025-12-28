@@ -293,15 +293,7 @@ const Hero: React.FC = () => {
                 </button>
             )}
             
-            {/* Gyroscope Active Indicator - Mobile Only */}
-            {isMobile && gyroEnabled && !showGyroButton && (
-                <div className="md:hidden flex items-center gap-2 px-3 py-1.5 border border-accent/30 rounded-full bg-bg-dark/80 backdrop-blur-sm">
-                    <div className="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
-                    <span className="text-[9px] font-mono text-accent uppercase tracking-widest">Tilt Active</span>
-                </div>
-            )}
-            
-            <div className="hero-spec flex flex-col items-center gap-2 mx-auto md:mx-0">
+            <div className="hero-spec flex flex-col items-center gap-2 w-full md:w-auto md:mx-0">
                 <div className="w-[1px] h-8 md:h-12 bg-white/30"></div>
                 <span className="text-[9px] md:text-[10px] font-mono tracking-widest text-white/50 uppercase">Scroll</span>
             </div>
