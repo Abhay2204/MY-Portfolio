@@ -150,11 +150,11 @@ const Clients: React.FC = () => {
         </div>
 
         {/* Minimal Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 border-t border-l border-white/10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
             {techStack.map((tech, i) => (
                 <div 
                     key={i} 
-                    className="aspect-[4/3] border-r border-b border-white/10 flex items-center justify-center relative hover:bg-white/[0.02] transition-colors duration-500 group overflow-hidden cursor-pointer"
+                    className="aspect-[4/3] flex items-center justify-center relative hover:bg-white/[0.02] transition-colors duration-500 group overflow-hidden cursor-pointer rounded-lg"
                 >
                      {/* Text Name - Fades out and moves down on hover */}
                      <span className="text-lg md:text-xl font-sans text-subtle group-hover:opacity-0 group-hover:translate-y-4 transition-all duration-300 ease-out z-10 pointer-events-none">

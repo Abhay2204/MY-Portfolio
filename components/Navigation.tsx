@@ -32,7 +32,25 @@ const Navigation: React.FC = () => {
       }
     };
 
+    // Handle visibility change - pause when tab is hidden
+    const handleVisibilityChange = () => {
+      if (audioRef.current) {
+        if (document.hidden) {
+          // Tab is hidden - pause audio
+          audioRef.current.pause();
+        } else {
+          // Tab is visible - resume audio if sound is on
+          if (soundOn) {
+            audioRef.current.play().catch(error => {
+              console.log('Audio playback failed:', error);
+            });
+          }
+        }
+      }
+    };
+
     window.addEventListener('startAudio', handleStartAudio);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
       // Cleanup
@@ -41,8 +59,9 @@ const Navigation: React.FC = () => {
         audioRef.current = null;
       }
       window.removeEventListener('startAudio', handleStartAudio);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, []);
+  }, [soundOn]);
 
   // Mobile menu animation
   useEffect(() => {
