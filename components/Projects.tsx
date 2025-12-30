@@ -219,7 +219,12 @@ const ProjectRow: React.FC<ProjectRowProps> = ({ project, index, onHover, isActi
             <div className={`flex flex-row md:flex-col gap-4 md:gap-5 ${isEven ? 'md:items-end md:text-right' : 'md:items-start'}`}>
               <span className="text-sm font-mono text-white/30">{project.year}</span>
 
-              <div className={`flex flex-wrap gap-2 ${isEven ? 'md:justify-end' : ''}`}>
+              {/* Tech stack - hide on hover (desktop) */}
+              <motion.div
+                className={`flex flex-wrap gap-2 ${isEven ? 'md:justify-end' : ''}`}
+                animate={{ opacity: isActive && !isMobile ? 0 : 1 }}
+                transition={{ duration: 0.2 }}
+              >
                 {project.tech.map((tech) => (
                   <span
                     key={tech}
@@ -228,7 +233,7 @@ const ProjectRow: React.FC<ProjectRowProps> = ({ project, index, onHover, isActi
                     {tech}
                   </span>
                 ))}
-              </div>
+              </motion.div>
             </div>
           </div>
         </div>
@@ -396,7 +401,7 @@ const Projects: React.FC = () => {
 
   return (
     <section
-      id="work"
+      id="projects"
       ref={containerRef}
       className="relative bg-bg-dark overflow-hidden"
     >
@@ -442,10 +447,10 @@ const Projects: React.FC = () => {
       {/* Floating image - desktop only */}
       {!isMobile && (
         <motion.div
-          className="fixed pointer-events-none z-50 overflow-hidden rounded-lg"
+          className="fixed pointer-events-none z-50 overflow-hidden rounded-xl"
           style={{
-            width: 280,
-            height: 180,
+            width: 320,
+            height: 200,
             left: smoothX,
             top: smoothY,
             x: '-50%',
@@ -456,11 +461,11 @@ const Projects: React.FC = () => {
             {activeIndex !== null && (
               <motion.div
                 key={activeIndex}
-                className="w-full h-full"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.3 }}
+                className="w-full h-full relative"
+                initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
+                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                exit={{ opacity: 0, scale: 0.9, rotate: 2 }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
               >
                 <img
                   src={projects[activeIndex].image}
@@ -468,39 +473,154 @@ const Projects: React.FC = () => {
                   className="w-full h-full object-cover"
                   style={{ filter: 'grayscale(100%) contrast(110%)' }}
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                 <div className="absolute inset-0 bg-accent/10 mix-blend-multiply" />
+
+                {/* Image overlay info */}
+                <div className="absolute bottom-0 left-0 right-0 p-4">
+                  <div className="flex items-center gap-2 text-accent mb-1">
+                    {getPlatformIcon(projects[activeIndex].platform)}
+                    <span className="text-[10px] font-mono uppercase tracking-wider">{projects[activeIndex].platform}</span>
+                  </div>
+                  <p className="text-white text-sm font-medium">{projects[activeIndex].title}</p>
+                </div>
+
+                {/* Corner accent */}
+                <div className="absolute top-0 right-0 w-8 h-8">
+                  <div className="absolute top-2 right-2 w-2 h-2 border-t border-r border-accent" />
+                </div>
+                <div className="absolute bottom-0 left-0 w-8 h-8">
+                  <div className="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-accent" />
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
         </motion.div>
       )}
 
-      {/* Features panel - desktop only */}
+      {/* Enhanced hover panels - desktop only */}
       {!isMobile && (
         <AnimatePresence>
           {activeIndex !== null && (
-            <motion.div
-              className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 max-w-[90vw]"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="flex flex-wrap items-center justify-center gap-3 px-6 py-3 bg-surface/90 backdrop-blur-md rounded-2xl border border-accent/30">
-                {projects[activeIndex].features.map((feature, i) => (
+            <>
+              {/* Top left - Project info */}
+              <motion.div
+                className="fixed top-24 left-8 z-40"
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -30 }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <div className="relative px-5 py-4 bg-surface/95 backdrop-blur-xl rounded-xl border border-white/10">
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl font-serif font-bold text-accent">{projects[activeIndex].id}</span>
+                    <div className="w-px h-8 bg-white/20" />
+                    <div>
+                      <p className="text-[10px] font-mono text-white/40 uppercase tracking-wider">Project</p>
+                      <p className="text-sm font-medium text-white">{projects[activeIndex].title}</p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Top right - Tech stack */}
+              <motion.div
+                className="fixed top-24 right-8 z-40"
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 30 }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
+              >
+                <div className="relative px-5 py-4 bg-surface/95 backdrop-blur-xl rounded-xl border border-white/10">
+                  <p className="text-[10px] font-mono text-white/40 uppercase tracking-wider mb-2">Tech Stack</p>
+                  <div className="flex gap-2">
+                    {projects[activeIndex].tech.map((tech, i) => (
+                      <motion.span
+                        key={tech}
+                        className="text-xs font-mono px-2 py-1 rounded bg-accent/10 text-accent border border-accent/20"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 + i * 0.05 }}
+                      >
+                        {tech}
+                      </motion.span>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Features - vertical on side (opposite to title) */}
+              <motion.div
+                className={`fixed top-1/2 -translate-y-1/2 z-40 ${activeIndex % 2 === 0 ? 'right-8' : 'left-8'}`}
+                initial={{ opacity: 0, x: activeIndex % 2 === 0 ? 30 : -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: activeIndex % 2 === 0 ? 30 : -30 }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+              >
+                <div className="relative px-4 py-5 bg-surface/95 backdrop-blur-xl rounded-xl border border-accent/20">
+                  <div className={`absolute top-0 ${activeIndex % 2 === 0 ? 'right-0' : 'left-0'} w-[2px] h-full bg-gradient-to-b from-transparent via-accent/50 to-transparent`} />
+
+                  <p className="text-[10px] font-mono text-accent uppercase tracking-wider mb-3">Features</p>
+
+                  <div className="flex flex-col gap-2">
+                    {projects[activeIndex].features.map((feature, i) => (
+                      <motion.div
+                        key={feature}
+                        className="flex items-center gap-2"
+                        initial={{ opacity: 0, x: activeIndex % 2 === 0 ? 20 : -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.15 + i * 0.05 }}
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0" />
+                        <span className="text-xs text-white/70 whitespace-nowrap">{feature}</span>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Bottom right - Year & Category */}
+              <motion.div
+                className="fixed bottom-8 right-8 z-40"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
+              >
+                <div className="relative px-5 py-4 bg-surface/95 backdrop-blur-xl rounded-xl border border-white/10">
+                  <div className="flex items-center gap-4">
+                    <div>
+                      <p className="text-[10px] font-mono text-white/40 uppercase tracking-wider">Year</p>
+                      <p className="text-2xl font-serif font-bold text-white">{projects[activeIndex].year}</p>
+                    </div>
+                    <div className="w-px h-10 bg-white/20" />
+                    <div>
+                      <p className="text-[10px] font-mono text-white/40 uppercase tracking-wider">Category</p>
+                      <p className="text-sm text-white/80">{projects[activeIndex].category}</p>
+                    </div>
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 w-3 h-3 border-b border-r border-accent" />
+                </div>
+              </motion.div>
+
+              {/* Bottom left - Click hint */}
+              <motion.div
+                className="fixed bottom-8 left-8 z-40"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
+              >
+                <div className="flex items-center gap-2 px-4 py-2 bg-surface/95 backdrop-blur-xl rounded-full border border-white/10">
                   <motion.div
-                    key={feature}
-                    className="flex items-center gap-2"
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.03 }}
-                  >
-                    <span className="w-1 h-1 rounded-full bg-accent" />
-                    <span className="text-xs font-mono text-white/70 whitespace-nowrap">{feature}</span>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
+                    className="w-2 h-2 rounded-full bg-accent"
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  />
+                  <span className="text-xs font-mono text-white/60">Click to view details</span>
+                </div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
       )}

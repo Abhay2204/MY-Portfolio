@@ -27,7 +27,7 @@ const RobotChat: React.FC = () => {
       id: 'skills',
       label: 'Tech Stack',
       response: 'I work with React.js, Node.js, Spring Boot, Kotlin, MongoDB, Supabase, MySQL, Next.js, Firebase, Tailwind CSS, Docker, and more. I specialize in building scalable digital solutions with modern technologies.',
-      scrollTo: 'work'
+      scrollTo: 'clients'
     },
     {
       id: 'experience',
@@ -39,7 +39,7 @@ const RobotChat: React.FC = () => {
       id: 'projects',
       label: 'Projects',
       response: 'Key projects include: Cosmic IDE (React, Django, Electron), NE CRM (React, Node.js, Supabase), InsightFlow (AI Analytics), Bit Campus (Kotlin), DSA Guru (React Native), and Health Track (MERN Stack).',
-      scrollTo: 'work'
+      scrollTo: 'projects'
     },
     {
       id: 'education',
@@ -68,10 +68,10 @@ const RobotChat: React.FC = () => {
     if (bubbleRef.current) {
       gsap.fromTo(bubbleRef.current,
         { scale: 0, opacity: 0 },
-        { 
-          scale: 1, 
-          opacity: 1, 
-          duration: 0.5, 
+        {
+          scale: 1,
+          opacity: 1,
+          duration: 0.5,
           ease: "back.out(1.7)",
           delay: 1
         }
@@ -82,7 +82,7 @@ const RobotChat: React.FC = () => {
   const handleOptionClick = (option: ChatOption) => {
     setSelectedOption(option.id);
     setShowResponse(true);
-    
+
     // Scroll to section if specified
     if (option.scrollTo) {
       const element = document.getElementById(option.scrollTo);
@@ -90,7 +90,7 @@ const RobotChat: React.FC = () => {
         element.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }
-    
+
     // Reset after 8 seconds
     setTimeout(() => {
       setShowResponse(false);
@@ -107,7 +107,7 @@ const RobotChat: React.FC = () => {
   return (
     <div className="fixed right-8 top-1/2 -translate-y-1/2 z-50">
       {/* Robot */}
-      <div 
+      <div
         onClick={handleRobotClick}
         className="cursor-pointer hover:scale-110 transition-transform duration-300"
       >
@@ -169,10 +169,10 @@ const RobotChat: React.FC = () => {
                       <span className="text-sm text-off-white group-hover:text-accent transition-colors font-sans">
                         {option.label}
                       </span>
-                      <svg 
-                        className="w-3 h-3 inline-block ml-2 opacity-0 group-hover:opacity-100 transition-opacity" 
-                        fill="none" 
-                        stroke="currentColor" 
+                      <svg
+                        className="w-3 h-3 inline-block ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                        fill="none"
+                        stroke="currentColor"
                         viewBox="0 0 24 24"
                       >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
