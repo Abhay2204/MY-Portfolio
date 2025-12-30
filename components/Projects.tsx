@@ -1,17 +1,24 @@
-import React, { useRef, useEffect, useState } from 'react';
-import gsap from '../utils/gsap';
-import { ScrollTrigger } from '../utils/gsap';
-import { FaArrowRight } from 'react-icons/fa';
+import React, { useRef, useState, useEffect } from 'react';
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useSpring,
+  useMotionValue,
+  useReducedMotion,
+  AnimatePresence
+} from 'framer-motion';
 
 interface Project {
   id: string;
   title: string;
   category: string;
-  tech: string;
-  description: string[];
+  platform: 'Web' | 'Mobile' | 'Desktop';
+  tech: string[];
   year: string;
-  link?: string;
   image: string;
+  description: string;
+  features: string[];
 }
 
 const projects: Project[] = [
@@ -19,474 +26,510 @@ const projects: Project[] = [
     id: "01",
     title: "Cosmic IDE",
     category: "Development Tool",
-    tech: "React, Django, Electron",
+    platform: "Desktop",
+    tech: ["React", "Django", "Electron"],
     year: "2024",
-    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1000&auto=format&fit=crop",
-    description: [
-      "A fully functional 'light vibe' coding IDE.",
-      "Build, create, and solve issues with 20+ AI models.",
-      "Supports custom extensions and 10+ languages."
-    ]
+    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop",
+    description: "AI-powered code editor with real-time collaboration, intelligent suggestions, and seamless git integration for modern development workflows.",
+    features: ["AI Code Suggestions", "Live Collaboration", "Git Integration", "Custom Themes"]
   },
   {
     id: "02",
     title: "NE CRM",
     category: "Enterprise Software",
-    tech: "React, Node.js, Supabase",
+    platform: "Web",
+    tech: ["React", "Node.js", "Supabase"],
     year: "2024",
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000&auto=format&fit=crop",
-    description: [
-      "Inventory and workforce management platform.",
-      "Automated stock tracking and real-time insights.",
-      "Complex analytics dashboards with Chart.js."
-    ]
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200&auto=format&fit=crop",
+    description: "Enterprise-grade CRM with automated workflows, predictive analytics, and team collaboration tools for scaling businesses.",
+    features: ["Pipeline Management", "Email Automation", "Analytics Dashboard", "Team Collaboration"]
   },
   {
     id: "03",
     title: "InsightFlow",
     category: "AI Analytics",
-    tech: "React, Gemini API, Recharts",
+    platform: "Web",
+    tech: ["React", "Gemini API", "Recharts"],
     year: "2023",
-    image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1000&auto=format&fit=crop",
-    description: [
-      "AI assistant delivering business insights via chat.",
-      "Real-time charts and exportable dashboards.",
-      "Instant data visualization from natural language."
-    ]
+    image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1200&auto=format&fit=crop",
+    description: "Transform raw data into actionable insights with AI-driven dashboards, custom reports, and predictive analytics.",
+    features: ["Predictive Analytics", "Custom Reports", "Data Visualization", "Export Tools"]
   },
   {
     id: "04",
     title: "Bit Campus",
-    category: "Mobile App",
-    tech: "Kotlin, Jetpack Compose",
+    category: "Mobile Application",
+    platform: "Mobile",
+    tech: ["Kotlin", "Jetpack Compose"],
     year: "2023",
-    image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=1000&auto=format&fit=crop",
-    description: [
-      "Indoor navigation Android app with searchable maps.",
-      "Reduced average navigation time by 40%.",
-      "Optimized pathfinding algorithms."
-    ]
+    image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=1200&auto=format&fit=crop",
+    description: "Smart campus companion app with scheduling, navigation, event updates, and social features for students.",
+    features: ["Class Scheduling", "Campus Navigation", "Event Updates", "Social Feed"]
   },
   {
     id: "05",
     title: "DSA Guru",
     category: "Education Platform",
-    tech: "React Native, Vue.js",
+    platform: "Mobile",
+    tech: ["React Native", "Vue.js"],
     year: "2023",
-    image: "https://images.unsplash.com/photo-1516116216624-53e697fedbea?q=80&w=1000&auto=format&fit=crop",
-    description: [
-      "Learn DSA from scratch to advanced levels.",
-      "Visual representation of code execution.",
-      "200+ practice questions and modules."
-    ]
+    image: "https://images.unsplash.com/photo-1516116216624-53e697fedbea?q=80&w=1200&auto=format&fit=crop",
+    description: "Interactive DSA learning platform with visual algorithms, practice problems, and progress tracking.",
+    features: ["Visual Algorithms", "Practice Problems", "Progress Tracking", "Code Playground"]
   },
   {
     id: "06",
     title: "Health Track",
-    category: "Lifestyle",
-    tech: "MERN Stack",
+    category: "Lifestyle App",
+    platform: "Mobile",
+    tech: ["MERN Stack"],
     year: "2022",
-    image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=1000&auto=format&fit=crop",
-    description: [
-      "Comprehensive health and lifestyle tracking.",
-      "Calorie tracking and daily routine planning.",
-      "Progress monitoring with detailed reports."
-    ]
+    image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=1200&auto=format&fit=crop",
+    description: "Personal health companion with activity tracking, meal planning, sleep analysis, and AI wellness recommendations.",
+    features: ["Activity Tracking", "Meal Planning", "Sleep Analysis", "Health Reports"]
   }
 ];
 
+const springConfig = { stiffness: 150, damping: 25 };
+
+const getPlatformIcon = (platform: string) => {
+  switch (platform) {
+    case 'Web':
+      return (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+        </svg>
+      );
+    case 'Mobile':
+      return (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+        </svg>
+      );
+    case 'Desktop':
+      return (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+      );
+  }
+};
+
+
+interface ProjectRowProps {
+  project: Project;
+  index: number;
+  onHover: (index: number | null) => void;
+  isActive: boolean;
+  onClick: () => void;
+  isMobile: boolean;
+}
+
+const ProjectRow: React.FC<ProjectRowProps> = ({ project, index, onHover, isActive, onClick, isMobile }) => {
+  const rowRef = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = useReducedMotion();
+  const isEven = index % 2 === 0;
+
+  const { scrollYProgress } = useScroll({
+    target: rowRef,
+    offset: ["start end", "end start"]
+  });
+
+  const smoothProgress = useSpring(scrollYProgress, springConfig);
+  const numberY = useTransform(smoothProgress, [0, 1], [80, -80]);
+
+  return (
+    <motion.div
+      ref={rowRef}
+      className="relative border-b border-white/5 group cursor-pointer"
+      onMouseEnter={() => !isMobile && onHover(index)}
+      onMouseLeave={() => !isMobile && onHover(null)}
+      onClick={onClick}
+    >
+      <div className="relative z-10 py-16 md:py-24 px-6 md:px-20">
+        <div className="grid grid-cols-12 gap-4 md:gap-8 items-center">
+
+          {/* Number - opposite side of content */}
+          <motion.div
+            className={`col-span-2 md:col-span-2 ${isEven ? 'order-1 md:order-3' : 'order-1 md:order-1'}`}
+            style={{ y: prefersReducedMotion ? 0 : numberY }}
+          >
+            <span
+              className="text-5xl md:text-7xl lg:text-8xl font-serif font-bold leading-none transition-all duration-500 block"
+              style={{
+                WebkitTextStroke: isActive ? '1.5px rgba(255,51,0,0.7)' : '1px rgba(255,255,255,0.15)',
+                color: 'transparent'
+              }}
+            >
+              {project.id}
+            </span>
+          </motion.div>
+
+          {/* Main content - alternates left/right */}
+          <div className={`col-span-10 md:col-span-6 ${isEven ? 'order-2 md:order-1' : 'order-2 md:order-3 md:text-right'}`}>
+            {/* Platform badge */}
+            <motion.div
+              className={`flex items-center gap-2 text-accent mb-3 ${!isEven ? 'md:justify-end' : ''}`}
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4 }}
+            >
+              {getPlatformIcon(project.platform)}
+              <span className="text-xs font-mono tracking-widest uppercase">
+                {project.platform}
+              </span>
+            </motion.div>
+
+            <motion.span
+              className="text-xs font-mono tracking-widest uppercase text-white/40 block mb-3"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+            >
+              {project.category}
+            </motion.span>
+
+            <div className="overflow-hidden">
+              <motion.h3
+                className="text-3xl md:text-5xl lg:text-6xl font-serif text-off-white tracking-tight leading-[0.95] transition-colors duration-300 group-hover:text-accent"
+                initial={{ y: '100%' }}
+                whileInView={{ y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              >
+                {project.title}
+              </motion.h3>
+            </div>
+
+            <motion.p
+              className={`text-white/40 text-sm md:text-base mt-4 max-w-md line-clamp-2 ${!isEven ? 'md:ml-auto' : ''}`}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              {project.description}
+            </motion.p>
+          </div>
+
+          {/* Meta - between number and content */}
+          <div className={`col-span-12 md:col-span-4 mt-6 md:mt-0 order-3 md:order-2`}>
+            <div className={`flex flex-row md:flex-col gap-4 md:gap-5 ${isEven ? 'md:items-end md:text-right' : 'md:items-start'}`}>
+              <span className="text-sm font-mono text-white/30">{project.year}</span>
+
+              <div className={`flex flex-wrap gap-2 ${isEven ? 'md:justify-end' : ''}`}>
+                {project.tech.map((tech) => (
+                  <span
+                    key={tech}
+                    className="text-xs font-mono px-2.5 py-1 rounded-full border border-white/10 text-white/40"
+                  >
+                    {tech}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+
+// Project Detail Modal
+interface ProjectModalProps {
+  project: Project | null;
+  onClose: () => void;
+}
+
+const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) => {
+  if (!project) return null;
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+    >
+      {/* Backdrop */}
+      <motion.div
+        className="absolute inset-0 bg-bg-dark/95 backdrop-blur-sm"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      />
+
+      {/* Modal */}
+      <motion.div
+        className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-surface border border-white/10 rounded-2xl"
+        initial={{ scale: 0.95, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        exit={{ scale: 0.95, y: 20 }}
+        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white/60 hover:text-white hover:border-white/40 transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        {/* Image */}
+        <div className="relative aspect-video overflow-hidden">
+          <img
+            src={project.image}
+            alt={project.title}
+            className="w-full h-full object-cover"
+            style={{ filter: 'grayscale(30%)' }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/50 to-transparent" />
+
+          {/* Number overlay */}
+          <span className="absolute bottom-4 right-6 text-8xl md:text-9xl font-serif font-bold text-white/5">
+            {project.id}
+          </span>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 md:p-10 -mt-20 relative z-10">
+          {/* Platform & Category */}
+          <div className="flex items-center gap-4 mb-4">
+            <div className="flex items-center gap-2 text-accent">
+              {getPlatformIcon(project.platform)}
+              <span className="text-xs font-mono tracking-widest uppercase">{project.platform}</span>
+            </div>
+            <span className="w-px h-4 bg-white/20" />
+            <span className="text-xs font-mono tracking-widest uppercase text-white/40">{project.category}</span>
+            <span className="w-px h-4 bg-white/20" />
+            <span className="text-xs font-mono text-white/40">{project.year}</span>
+          </div>
+
+          {/* Title */}
+          <h2 className="text-4xl md:text-5xl font-serif text-off-white tracking-tight mb-6">
+            {project.title}
+          </h2>
+
+          {/* Description */}
+          <p className="text-white/60 text-base md:text-lg leading-relaxed mb-8 max-w-2xl">
+            {project.description}
+          </p>
+
+          {/* Tech Stack */}
+          <div className="mb-8">
+            <h4 className="text-xs font-mono tracking-widest uppercase text-white/30 mb-3">Tech Stack</h4>
+            <div className="flex flex-wrap gap-2">
+              {project.tech.map((tech) => (
+                <span
+                  key={tech}
+                  className="text-sm font-mono px-4 py-2 rounded-full border border-white/10 text-white/60"
+                >
+                  {tech}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Features */}
+          <div>
+            <h4 className="text-xs font-mono tracking-widest uppercase text-white/30 mb-4">Key Features</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {project.features.map((feature) => (
+                <div
+                  key={feature}
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg border border-accent/30 bg-accent/5"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+                  <span className="text-sm text-white/70">{feature}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+
 const Projects: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [hoveredProject, setHoveredProject] = useState<Project | null>(null);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isMobile, setIsMobile] = useState(false);
-  const mousePos = useRef({ x: 0, y: 0 });
-  const cardPos = useRef({ x: 0, y: 0 });
-  const rafId = useRef<number>();
-  const [isInSection, setIsInSection] = useState(false);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const smoothX = useSpring(mouseX, { stiffness: 100, damping: 20 });
+  const smoothY = useSpring(mouseY, { stiffness: 100, damping: 20 });
 
+  // Check for mobile
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-        const rows = gsap.utils.toArray('.project-row');
-        
-        rows.forEach((row: any) => {
-            gsap.fromTo(row, 
-                { y: 50, opacity: 0 },
-                {
-                    y: 0,
-                    opacity: 1,
-                    duration: 1,
-                    ease: "power3.out",
-                    scrollTrigger: {
-                        trigger: row,
-                        start: "top 85%",
-                        end: "top 50%",
-                        scrub: 1,
-                        once: false
-                    }
-                }
-            );
-        });
-
-    }, containerRef);
-
-    return () => ctx.revert();
-  }, []);
-
-  // Track if mouse is in the projects section (desktop only)
+  // Cursor-following image (desktop only)
   useEffect(() => {
     if (isMobile) return;
 
     const handleMouseMove = (e: MouseEvent) => {
       if (!containerRef.current) return;
-      
       const rect = containerRef.current.getBoundingClientRect();
-      const inSection = e.clientY >= rect.top && e.clientY <= rect.bottom && 
-                        e.clientX >= rect.left && e.clientX <= rect.right;
-      
-      setIsInSection(inSection);
-      
-      if (!inSection) {
-        setHoveredProject(null);
+      if (e.clientY >= rect.top && e.clientY <= rect.bottom) {
+        mouseX.set(e.clientX);
+        mouseY.set(e.clientY);
       }
-    };
-
-    const handleScroll = () => {
-      if (!containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      // Hide card if section is out of view
-      if (rect.bottom < 0 || rect.top > window.innerHeight) {
-        setHoveredProject(null);
-      }
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [isMobile]);
-
-  // Mouse tracking (desktop only)
-  useEffect(() => {
-    if (isMobile) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      mousePos.current = { x: e.clientX, y: e.clientY };
     };
 
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [isMobile]);
-
-  // Lerp animation for smooth following (desktop only)
-  useEffect(() => {
-    if (isMobile) return;
-
-    const lerp = (start: number, end: number, factor: number) => {
-      return start + (end - start) * factor;
-    };
-
-    const animate = () => {
-      cardPos.current.x = lerp(cardPos.current.x, mousePos.current.x, 0.1);
-      cardPos.current.y = lerp(cardPos.current.y, mousePos.current.y, 0.1);
-
-      if (cardRef.current) {
-        cardRef.current.style.transform = `translate(${cardPos.current.x}px, ${cardPos.current.y}px) translate(-50%, -50%)`;
-      }
-
-      rafId.current = requestAnimationFrame(animate);
-    };
-
-    rafId.current = requestAnimationFrame(animate);
-
-    return () => {
-      if (rafId.current) {
-        cancelAnimationFrame(rafId.current);
-      }
-    };
-  }, [isMobile]);
-
-  // Morph animation when hovering (desktop only)
-  useEffect(() => {
-    if (isMobile || !cardRef.current) return;
-
-    if (hoveredProject) {
-      // Expand to card
-      gsap.to(cardRef.current, {
-        width: 400,
-        height: 500,
-        borderRadius: 12,
-        opacity: 1,
-        duration: 0.6,
-        ease: "power3.out"
-      });
-    } else {
-      // Shrink to dot
-      gsap.to(cardRef.current, {
-        width: 20,
-        height: 20,
-        borderRadius: '50%',
-        opacity: 0,
-        duration: 0.4,
-        ease: "power2.in"
-      });
-    }
-  }, [hoveredProject, isMobile]);
+  }, [mouseX, mouseY, isMobile]);
 
   return (
-    <section id="work" ref={containerRef} className="py-32 px-6 md:px-20 bg-bg-dark border-t border-white/5 relative overflow-hidden min-h-screen">
-        {/* Fade Text Background */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
-          <span className="text-[12vw] md:text-[10vw] font-serif font-bold text-white/[0.02] whitespace-nowrap">
-            PROJECTS
+    <section
+      id="work"
+      ref={containerRef}
+      className="relative bg-bg-dark overflow-hidden"
+    >
+      {/* Background text */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+        <span className="text-[15vw] md:text-[12vw] font-serif font-bold text-white/[0.015] whitespace-nowrap">
+          PROJECTS
+        </span>
+      </div>
+
+      {/* Header */}
+      <div className="relative z-10 pt-32 pb-16 px-6 md:px-20">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <span className="text-xs font-mono text-accent tracking-widest uppercase block mb-6">
+            Selected Work
           </span>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 relative z-10">
-            
-            {/* Sticky Header */}
-            <div className="md:col-span-2 hidden md:block">
-                 <div className="sticky top-32">
-                    <h3 className="text-xs font-mono tracking-widest text-subtle uppercase mb-4">Selected Works</h3>
-                    <span className="text-[10px] text-accent font-mono">({projects.length})</span>
-                 </div>
-            </div>
+          <h2 className="text-3xl md:text-5xl lg:text-6xl font-serif text-off-white max-w-3xl leading-[1.1]">
+            Crafting digital experiences that matter
+          </h2>
+        </motion.div>
+      </div>
 
-            {/* Mobile Header */}
-            <div className="md:col-span-12 block md:hidden mb-8">
-                <h3 className="text-xs font-mono tracking-widest text-subtle uppercase">Selected Works</h3>
-            </div>
+      {/* Projects list */}
+      <div className="relative z-10 border-t border-white/5">
+        {projects.map((project, index) => (
+          <ProjectRow
+            key={project.id}
+            project={project}
+            index={index}
+            onHover={setActiveIndex}
+            isActive={activeIndex === index}
+            onClick={() => setSelectedProject(project)}
+            isMobile={isMobile}
+          />
+        ))}
+      </div>
 
-            {/* Project List */}
-            <div className="md:col-span-10 flex flex-col">
-                {projects.map((project, index) => (
-                    <div 
-                        key={index} 
-                        className="project-row group relative border-t border-white/10 py-12 transition-all duration-500 hover:bg-white/[0.02]"
-                        onMouseEnter={() => !isMobile && isInSection && setHoveredProject(project)}
-                        onMouseLeave={() => !isMobile && setHoveredProject(null)}
-                        onClick={() => isMobile && setSelectedProject(project)}
-                    >
-                        <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 md:gap-0 relative z-10">
-                            
-                            {/* Left: Title & ID */}
-                            <div className="md:w-5/12 flex flex-col gap-2">
-                                <div className="flex items-baseline gap-4">
-                                    <span className="text-xs font-mono text-accent opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-                                        {project.id}
-                                    </span>
-                                    <h3 className="text-4xl md:text-5xl font-serif text-off-white group-hover:text-accent transition-colors duration-300 cursor-pointer">
-                                        {project.title}
-                                    </h3>
-                                </div>
-                                <span className="text-xs font-mono text-subtle uppercase tracking-widest ml-0 md:ml-8 group-hover:text-white transition-colors delay-75">
-                                    {project.category}
-                                </span>
-                            </div>
-
-                            {/* Middle: Description */}
-                            <div className="md:w-4/12 flex flex-col gap-4">
-                                <p className="text-sm text-gray-400 font-sans leading-relaxed group-hover:text-gray-300 transition-colors">
-                                    {project.description[0]}
-                                </p>
-                                <ul className="flex flex-wrap gap-2">
-                                    {project.tech.split(',').map((t, i) => (
-                                        <li key={i} className="text-[10px] font-mono border border-white/10 px-2 py-1 rounded-full text-subtle group-hover:border-white/30 transition-colors">
-                                            {t.trim()}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-
-                            {/* Right: Year & Arrow */}
-                            <div className="md:w-2/12 flex flex-row md:flex-col justify-between md:items-end items-center mt-4 md:mt-0">
-                                <span className="text-xs font-mono text-subtle">{project.year}</span>
-                                <div className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center group-hover:border-accent group-hover:bg-accent group-hover:text-white transition-all duration-300 transform group-hover:-rotate-45 cursor-pointer">
-                                    <FaArrowRight size={12} />
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                ))}
-                {/* Closing Border */}
-                <div className="w-full h-[1px] bg-white/10"></div>
-            </div>
-        </div>
-
-        {/* Floating Project Card - Desktop Only - Morphs from dot to card */}
-        {!isMobile && (
-          <div 
-            ref={cardRef}
-            className="fixed top-0 left-0 pointer-events-none z-[60] overflow-hidden bg-surface border border-accent/30"
-            style={{
-              width: 20,
-              height: 20,
-              borderRadius: '50%',
-              opacity: 0,
-              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
-            }}
-          >
-            {hoveredProject && (
-              <div className="w-full h-full flex flex-col">
-                {/* Project Image */}
-                <div className="relative w-full h-48 overflow-hidden">
-                  <img 
-                    src={hoveredProject.image} 
-                    alt={hoveredProject.title}
-                    className="w-full h-full object-cover"
-                    style={{ filter: 'grayscale(100%) contrast(120%)' }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent"></div>
-                </div>
-
-                {/* Project Details */}
-                <div className="p-6 flex-1 flex flex-col">
-                  {/* Header */}
-                  <div className="mb-4">
-                    <div className="flex items-baseline gap-2 mb-1">
-                      <span className="text-[10px] font-mono text-accent">{hoveredProject.id}</span>
-                      <h3 className="text-2xl font-serif text-off-white italic">
-                        {hoveredProject.title}
-                      </h3>
-                    </div>
-                    <p className="text-[10px] font-mono text-subtle uppercase tracking-widest">
-                      {hoveredProject.category}
-                    </p>
-                  </div>
-
-                  {/* Tech Stack */}
-                  <div className="mb-4">
-                    <h4 className="text-[9px] font-mono tracking-widest text-subtle uppercase mb-2">Tech Stack</h4>
-                    <div className="flex flex-wrap gap-1">
-                      {hoveredProject.tech.split(',').map((t, i) => (
-                        <span 
-                          key={i} 
-                          className="text-[9px] font-mono border border-accent/30 px-2 py-1 rounded-full text-accent"
-                        >
-                          {t.trim()}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Features */}
-                  <div className="flex-1">
-                    <h4 className="text-[9px] font-mono tracking-widest text-subtle uppercase mb-2">Features</h4>
-                    <ul className="space-y-1">
-                      {hoveredProject.description.slice(0, 3).map((desc, i) => (
-                        <li key={i} className="flex items-start gap-2 text-gray-400">
-                          <span className="text-accent text-[10px] mt-0.5">●</span>
-                          <span className="text-[11px] leading-relaxed">{desc}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Year */}
-                  <div className="mt-4 pt-4 border-t border-white/10">
-                    <span className="text-[10px] font-mono text-subtle">{hoveredProject.year}</span>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Mobile Project Modal */}
-        {isMobile && selectedProject && (
-          <div 
-            className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
-            onClick={() => setSelectedProject(null)}
-          >
-            <div 
-              className="relative w-full max-w-md bg-surface border border-accent/30 rounded-lg overflow-hidden shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Close Button */}
-              <button
-                onClick={() => setSelectedProject(null)}
-                className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-bg-dark/80 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:border-accent transition-colors"
+      {/* Floating image - desktop only */}
+      {!isMobile && (
+        <motion.div
+          className="fixed pointer-events-none z-50 overflow-hidden rounded-lg"
+          style={{
+            width: 280,
+            height: 180,
+            left: smoothX,
+            top: smoothY,
+            x: '-50%',
+            y: '-50%'
+          }}
+        >
+          <AnimatePresence mode="wait">
+            {activeIndex !== null && (
+              <motion.div
+                key={activeIndex}
+                className="w-full h-full"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.3 }}
               >
-                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-              </button>
-
-              {/* Project Image */}
-              <div className="relative w-full h-48 overflow-hidden">
-                <img 
-                  src={selectedProject.image} 
-                  alt={selectedProject.title}
+                <img
+                  src={projects[activeIndex].image}
+                  alt={projects[activeIndex].title}
                   className="w-full h-full object-cover"
-                  style={{ filter: 'grayscale(100%) contrast(120%)' }}
+                  style={{ filter: 'grayscale(100%) contrast(110%)' }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent"></div>
+                <div className="absolute inset-0 bg-accent/10 mix-blend-multiply" />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      )}
+
+      {/* Features panel - desktop only */}
+      {!isMobile && (
+        <AnimatePresence>
+          {activeIndex !== null && (
+            <motion.div
+              className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 max-w-[90vw]"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="flex flex-wrap items-center justify-center gap-3 px-6 py-3 bg-surface/90 backdrop-blur-md rounded-2xl border border-accent/30">
+                {projects[activeIndex].features.map((feature, i) => (
+                  <motion.div
+                    key={feature}
+                    className="flex items-center gap-2"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.03 }}
+                  >
+                    <span className="w-1 h-1 rounded-full bg-accent" />
+                    <span className="text-xs font-mono text-white/70 whitespace-nowrap">{feature}</span>
+                  </motion.div>
+                ))}
               </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      )}
 
-              {/* Project Details */}
-              <div className="p-6 flex flex-col">
-                {/* Header */}
-                <div className="mb-4">
-                  <div className="flex items-baseline gap-2 mb-1">
-                    <span className="text-[10px] font-mono text-accent">{selectedProject.id}</span>
-                    <h3 className="text-2xl font-serif text-off-white italic">
-                      {selectedProject.title}
-                    </h3>
-                  </div>
-                  <p className="text-[10px] font-mono text-subtle uppercase tracking-widest">
-                    {selectedProject.category}
-                  </p>
-                </div>
-
-                {/* Tech Stack */}
-                <div className="mb-4">
-                  <h4 className="text-[9px] font-mono tracking-widest text-subtle uppercase mb-2">Tech Stack</h4>
-                  <div className="flex flex-wrap gap-1">
-                    {selectedProject.tech.split(',').map((t, i) => (
-                      <span 
-                        key={i} 
-                        className="text-[9px] font-mono border border-accent/30 px-2 py-1 rounded-full text-accent"
-                      >
-                        {t.trim()}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Features */}
-                <div className="mb-4">
-                  <h4 className="text-[9px] font-mono tracking-widest text-subtle uppercase mb-2">Features</h4>
-                  <ul className="space-y-2">
-                    {selectedProject.description.map((desc, i) => (
-                      <li key={i} className="flex items-start gap-2 text-gray-400">
-                        <span className="text-accent text-[10px] mt-0.5">●</span>
-                        <span className="text-[11px] leading-relaxed">{desc}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Year */}
-                <div className="pt-4 border-t border-white/10">
-                  <span className="text-[10px] font-mono text-subtle">{selectedProject.year}</span>
-                </div>
-              </div>
-            </div>
-          </div>
+      {/* Project Modal */}
+      <AnimatePresence>
+        {selectedProject && (
+          <ProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} />
         )}
+      </AnimatePresence>
+
+      {/* Footer */}
+      <motion.div
+        className="relative z-10 py-24 text-center border-t border-white/5"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+      >
+        <p className="text-white/30 text-sm font-mono mb-5">Want to collaborate?</p>
+        <a
+          href="#contact"
+          className="inline-flex items-center gap-3 text-base font-medium text-off-white hover:text-accent transition-colors group"
+        >
+          <span>Get in touch</span>
+          <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </a>
+      </motion.div>
     </section>
   );
 };
