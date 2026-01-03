@@ -234,9 +234,9 @@ const Hero: React.FC = () => {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[50vw] h-[50vw] bg-accent/20 rounded-full blur-[150px] animate-pulse"></div>
       </div>
 
-      {/* Glitch Text Box - Left Side (Desktop Only) - Upper */}
-      <div className="glitch-box hidden md:block absolute left-8 lg:left-16 top-1/3 -translate-y-1/2 z-20">
-        <div className="relative px-4 py-3 border border-accent/30 bg-bg-dark/50 backdrop-blur-sm overflow-hidden group">
+      {/* Glitch Text Box - Left Side (Desktop Only) */}
+      <div className="glitch-box hidden md:block absolute left-8 lg:left-16 top-[40%] -translate-y-1/2 z-20">
+        <div className="relative px-5 py-4 border border-accent/30 bg-bg-dark/50 backdrop-blur-sm overflow-hidden group">
           {/* Glitch lines */}
           <div className="absolute inset-0 opacity-20">
             <div className="absolute top-0 left-0 w-full h-[1px] bg-accent animate-pulse" />
@@ -245,10 +245,11 @@ const Hero: React.FC = () => {
           {/* Scanline effect */}
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-accent/5 to-transparent animate-scan pointer-events-none" />
           {/* Text */}
-          <p className="text-[10px] font-mono text-accent uppercase tracking-[0.3em] glitch-text relative">
-            <span className="relative z-10">Currently Freelancing</span>
+          <p className="text-xs font-mono text-accent uppercase tracking-[0.2em] glitch-text relative">
+            <span className="relative z-10">Hey, I am</span>
           </p>
-          <p className="text-xs font-mono text-off-white mt-1 relative z-10">1+ Year</p>
+          <p className="text-lg font-mono text-off-white mt-1 relative z-10 font-bold">Abhay Mallick</p>
+          <p className="text-sm font-mono text-subtle mt-2 relative z-10">Welcome to my portfolio</p>
           {/* Corner accents */}
           <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-accent" />
           <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-accent" />
@@ -267,7 +268,7 @@ const Hero: React.FC = () => {
 
       {/* Glitch Text Box - Right Side (Desktop Only) - Lower */}
       <div className="glitch-box hidden md:block absolute right-8 lg:right-16 top-2/3 -translate-y-1/2 z-20">
-        <div className="relative px-4 py-3 border border-accent/30 bg-bg-dark/50 backdrop-blur-sm overflow-hidden group">
+        <div className="relative px-5 py-4 border border-accent/30 bg-bg-dark/50 backdrop-blur-sm overflow-hidden group">
           {/* Glitch lines */}
           <div className="absolute inset-0 opacity-20">
             <div className="absolute top-0 left-0 w-full h-[1px] bg-accent animate-pulse" style={{ animationDelay: '0.3s' }} />
@@ -276,10 +277,10 @@ const Hero: React.FC = () => {
           {/* Scanline effect */}
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-accent/5 to-transparent animate-scan pointer-events-none" style={{ animationDelay: '1s' }} />
           {/* Text */}
-          <p className="text-[10px] font-mono text-accent uppercase tracking-[0.3em] glitch-text relative">
-            <span className="relative z-10">Welcome to my</span>
+          <p className="text-xs font-mono text-accent uppercase tracking-[0.2em] glitch-text relative">
+            <span className="relative z-10">Currently Freelancing</span>
           </p>
-          <p className="text-xs font-mono text-off-white mt-1 relative z-10">Portfolio</p>
+          <p className="text-lg font-mono text-off-white mt-1 relative z-10 font-bold">1+ Year</p>
           {/* Corner accents */}
           <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-accent" />
           <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-accent" />
