@@ -307,7 +307,7 @@ const Hero: React.FC = () => {
           </div>
 
           <a
-            href="/resume.pdf"
+            href="/documents/Abhay Mallick 8421822204.pdf"
             target="_blank"
             rel="noreferrer"
             className="group relative px-5 py-2 border border-white/20 rounded-full overflow-hidden hover:border-accent transition-colors duration-300"
