@@ -9,6 +9,7 @@ import History from './components/History';
 import Clients from './components/Clients';
 import Certificates from './components/Certificates';
 import Projects from './components/Projects';
+import Gallery from './components/Gallery';
 import Footer from './components/Footer';
 
 function App() {
@@ -41,6 +42,7 @@ function App() {
             <Clients />
             <Certificates />
             <Projects />
+            <Gallery />
         </main>
 
         <Footer />

@@ -1,20 +1,43 @@
 import React, { useRef, useState, useEffect } from 'react';
 import gsap from '../utils/gsap';
-import { ServiceItem } from '../types';
+
+interface ServiceItem {
+  id: number;
+  title: string;
+  description: string;
+  image: string;
+  projects: string[];
+}
 
 const services: ServiceItem[] = [
-  { id: 1, title: 'Full Stack Dev', description: 'React, Node.js, Spring Boot' },
-  { id: 2, title: 'Mobile Apps', description: 'Kotlin & Jetpack Compose' },
-  { id: 3, title: 'AI Solutions', description: 'Gemini API & Analytics' },
-  { id: 4, title: 'System Design', description: 'Microservices & SQL' },
-];
-
-// Abstract/Tech-themed images
-const images = [
-  "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1000&auto=format&fit=crop", // Coding
-  "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=1000&auto=format&fit=crop", // Mobile
-  "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1000&auto=format&fit=crop", // AI
-  "https://images.unsplash.com/photo-1558494949-ef526b0042a0?q=80&w=1000&auto=format&fit=crop"  // Server
+  { 
+    id: 1, 
+    title: 'Full Stack Dev', 
+    description: 'React, Node.js, Spring Boot',
+    image: '/assets/images/cosmic ide.png',
+    projects: ['Resume Builder', 'Cosmic IDE', 'CRM', 'DSA Guru']
+  },
+  { 
+    id: 2, 
+    title: 'Mobile Apps', 
+    description: 'Kotlin & Jetpack Compose',
+    image: '/assets/images/dsa guru.png',
+    projects: ['Bit Campus Navigator', 'SLRS Student Learning Recommendation System', 'Health Tracker', 'Beyond Bark']
+  },
+  { 
+    id: 3, 
+    title: 'AI Solutions', 
+    description: 'Gemini API & Analytics',
+    image: '/assets/images/insightflow.png',
+    projects: ['Pox Type Detector', 'House Price Prediction', 'Dog Mood Detection', 'Fake News Detector']
+  },
+  { 
+    id: 4, 
+    title: 'System Design', 
+    description: 'Microservices & SQL',
+    image: '/assets/images/ne crm.png',
+    projects: ['Dev OS', 'NE CRM', 'Student Fees and Attendance Management System', 'Medical Store Inventory Management System']
+  },
 ];
 
 const Services: React.FC = () => {
@@ -33,13 +56,11 @@ const Services: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Disable hover image on mobile
     if (isMobile) return;
 
     const onMove = (e: MouseEvent) => {
         if (!imageRef.current || !containerRef.current) return;
         
-        // Check if mouse is within the section
         const rect = containerRef.current.getBoundingClientRect();
         const isInSection = e.clientY >= rect.top && e.clientY <= rect.bottom;
         
@@ -48,7 +69,6 @@ const Services: React.FC = () => {
             return;
         }
         
-        // Move image with cursor
         const { clientX, clientY } = e;
         
         gsap.to(imageRef.current, {
@@ -64,7 +84,6 @@ const Services: React.FC = () => {
   }, [isMobile]);
 
   useEffect(() => {
-    // Show/Hide image based on activeIndex (desktop only)
     if (imageRef.current && !isMobile) {
         gsap.to(imageRef.current, {
             scale: activeIndex !== null ? 1 : 0,
@@ -106,20 +125,39 @@ const Services: React.FC = () => {
             ))}
         </div>
 
-        {/* Floating Image Reveal - Desktop Only */}
+        {/* Floating Image with Projects - Desktop Only */}
         {!isMobile && (
           <div 
               ref={imageRef}
-              className="fixed top-0 left-0 w-[300px] h-[400px] pointer-events-none z-[60] overflow-hidden mix-blend-normal rounded-lg -translate-x-1/2 -translate-y-1/2 will-change-transform"
+              className="fixed top-0 left-0 pointer-events-none z-[60] -translate-x-1/2 -translate-y-1/2 will-change-transform flex gap-4"
               style={{ opacity: 0, transform: 'scale(0) translate(-50%, -50%)' }}
           >
-              <div 
-                  className="w-full h-full bg-cover bg-center transition-all duration-500"
-                  style={{ 
-                      backgroundImage: activeIndex !== null ? `url(${images[activeIndex]})` : 'none',
-                      filter: 'grayscale(100%) contrast(120%)'
-                  }}
-              />
+              {/* Image */}
+              <div className="w-[280px] h-[350px] overflow-hidden rounded-lg bg-surface">
+                  {activeIndex !== null && (
+                    <img 
+                      src={services[activeIndex].image}
+                      alt={services[activeIndex].title}
+                      className="w-full h-full object-cover"
+                      style={{ filter: 'grayscale(50%) contrast(110%)' }}
+                    />
+                  )}
+              </div>
+              
+              {/* Projects List */}
+              <div className="flex flex-col justify-center gap-3 py-4">
+                {activeIndex !== null && services[activeIndex].projects.map((project, i) => (
+                  <div 
+                    key={i}
+                    className="flex items-center gap-3"
+                  >
+                    <div className="w-1.5 h-1.5 bg-accent rounded-full" />
+                    <span className="text-sm font-mono text-off-white whitespace-nowrap">
+                      {project}
+                    </span>
+                  </div>
+                ))}
+              </div>
           </div>
         )}
     </section>

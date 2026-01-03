@@ -29,7 +29,7 @@ const projects: Project[] = [
     platform: "Desktop",
     tech: ["React", "Django", "Electron"],
     year: "2024",
-    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop",
+    image: "/assets/images/cosmic ide.png",
     description: "AI-powered code editor with real-time collaboration, intelligent suggestions, and seamless git integration for modern development workflows.",
     features: ["AI Code Suggestions", "Live Collaboration", "Git Integration", "Custom Themes"]
   },
@@ -40,7 +40,7 @@ const projects: Project[] = [
     platform: "Web",
     tech: ["React", "Node.js", "Supabase"],
     year: "2024",
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200&auto=format&fit=crop",
+    image: "/assets/images/ne crm.png",
     description: "Enterprise-grade CRM with automated workflows, predictive analytics, and team collaboration tools for scaling businesses.",
     features: ["Pipeline Management", "Email Automation", "Analytics Dashboard", "Team Collaboration"]
   },
@@ -51,7 +51,7 @@ const projects: Project[] = [
     platform: "Web",
     tech: ["React", "Gemini API", "Recharts"],
     year: "2023",
-    image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1200&auto=format&fit=crop",
+    image: "/assets/images/insightflow.png",
     description: "Transform raw data into actionable insights with AI-driven dashboards, custom reports, and predictive analytics.",
     features: ["Predictive Analytics", "Custom Reports", "Data Visualization", "Export Tools"]
   },
@@ -73,7 +73,7 @@ const projects: Project[] = [
     platform: "Mobile",
     tech: ["React Native", "Vue.js"],
     year: "2023",
-    image: "https://images.unsplash.com/photo-1516116216624-53e697fedbea?q=80&w=1200&auto=format&fit=crop",
+    image: "/assets/images/dsa guru.png",
     description: "Interactive DSA learning platform with visual algorithms, practice problems, and progress tracking.",
     features: ["Visual Algorithms", "Practice Problems", "Progress Tracking", "Code Playground"]
   },
